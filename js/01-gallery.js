@@ -1,52 +1,37 @@
 import { galleryItems } from './gallery-items.js';
 
-document.addEventListener("DOMContentLoaded", () => {
-  const galleryList = document.querySelector(".gallery");
+const galleryContainer = document.querySelector(".gallery");
+const galleryHTML = galleryItems
+  .map(({ preview, original, description }) =>
+    `<li data-preview="${preview}" class="gallery__item">
+      <a class="gallery__link" href="${original}">
+        <img src="${preview}" data-source="${original}" alt="${description}" class="gallery__image" />
+      </a>
+    </li>`
+  )
+  .join("");
 
-  // Створення і рендер розмітки галереї за допомогою map()
-  const galleryItemsElements = galleryItems.map(({ original, preview, description }) => {
-    const listItem = document.createElement("li");
-    listItem.classList.add("gallery__item");
+galleryContainer.innerHTML = galleryHTML;
 
-    const link = document.createElement("a");
-    link.classList.add("gallery__link");
-    link.href = original;
-
-    const image = document.createElement("img");
-    image.classList.add("gallery__image");
-    image.src = preview;
-    image.setAttribute("data-source", original);
-    image.alt = description;
-
-    link.appendChild(image);
-    listItem.appendChild(link);
-    return listItem;
-  });
-
-  galleryList.append(...galleryItemsElements);
-
-  // Реалізація делегування та відкриття модального вікна
-  galleryList.addEventListener("click", (event) => {
-    event.preventDefault();
-    if (event.target.classList.contains("gallery__image")) {
-      const source = event.target.dataset.source;
-      openModal(source);
-    }
-  });
-
-  // Відкриття модального вікна та збільшення зображення
-  function openModal(source) {
-    const instance = basicLightbox.create(`
-      <img src="${source}" alt="Full-size image" class="modal-image">
-    `, {
-      onShow: (instance) => {
-        instance.element().querySelector(".modal-image").addEventListener("click", () => {
-          instance.close();
-        });
-      }
-    });
-
-    instance.show();
+galleryContainer.addEventListener("click", (event) => {
+  event.preventDefault(); 
+  if (event.target.classList.contains("gallery__image")) {
+    const imageSource = event.target.dataset.source;
+    openLightbox(imageSource);
   }
 });
+
+function openLightbox(source) {
+  const lightboxInstance = basicLightbox.create(`
+    <img src="${source}" alt="Full-size image" class="lightbox-image">
+  `, {
+    onShow: (instance) => {
+      instance.element().querySelector(".lightbox-image").addEventListener("click", () => {
+        instance.close();
+      });
+    }
+  });
+  
+  lightboxInstance.show();
+}
 
